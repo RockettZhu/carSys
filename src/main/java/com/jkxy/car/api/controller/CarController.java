@@ -110,10 +110,10 @@ public class CarController {
      */
     @PostMapping("findByNameWithPage")
     public JSONResult findById (String name,int from, int to) {
-        if(to<=from){
+        if(from <1 || to<from){
             return JSONResult.errorException("输入记录位置错误");
         }
-        List<Car> cars  = carService.findByNameWithPage(name,from,to-from);
+        List<Car> cars  = carService.findByNameWithPage(name,from-1,to-from+1);
         return JSONResult.ok(cars);
     }
 }
