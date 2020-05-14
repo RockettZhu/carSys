@@ -1,11 +1,14 @@
 package com.jkxy.car.api.service.Impl;
 
 import com.jkxy.car.api.dao.CarDao;
+import com.jkxy.car.api.dao.CarSellDao;
 import com.jkxy.car.api.pojo.Car;
+import com.jkxy.car.api.pojo.CarSell;
 import com.jkxy.car.api.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 
@@ -13,6 +16,9 @@ import java.util.List;
 public class CarServiceImpl implements CarService {
     @Autowired
     private CarDao carDao;
+
+    @Autowired
+    private CarSellDao carSellDao;
 
     @Override
     public List<Car> findAll() {
@@ -42,5 +48,33 @@ public class CarServiceImpl implements CarService {
     @Override
     public void insertCar(Car car) {
         carDao.insertCar(car);
+    }
+
+    @Override
+    public String buyCar(int id, int amount) {
+        if(amount<1){
+            return "购买数量异常";
+        }
+        Car car = carDao.findById(id);
+        int stock  = car.getStock();
+        if(amount>stock){
+            return "库存不足";
+        }
+        car.setStock(stock-amount);
+        carDao.updateById(car);
+
+        //insert sell log
+        CarSell carSell = new CarSell();
+        carSell.setCarId(car.getId());
+        carSell.setAmount(amount);
+        carSell.setTradeDate( new Timestamp(System.currentTimeMillis()));
+
+        carSellDao.insertCarSell(carSell);
+        return null;
+    }
+
+    @Override
+    public List<Car> findByNameWithPage(String name,int from,int pageSize) {
+        return carDao.findByNameWithPage(name,from,pageSize);
     }
 }

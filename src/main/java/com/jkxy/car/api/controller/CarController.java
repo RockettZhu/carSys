@@ -4,6 +4,7 @@ import com.jkxy.car.api.pojo.Car;
 import com.jkxy.car.api.service.CarService;
 import com.jkxy.car.api.utils.JSONResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -84,5 +85,35 @@ public class CarController {
     public JSONResult insertCar(Car car) {
         carService.insertCar(car);
         return JSONResult.ok();
+    }
+
+
+    /**
+     * 买车
+     *
+     * @param car
+     * @return
+     */
+    @PostMapping("buyCar")
+    public JSONResult buyCar(Car car) {
+        String errorMsg = carService.buyCar(car.getId(), car.getAmount());
+        return JSONResult.ok(errorMsg);
+    }
+
+    /**
+     * 通过id查询
+     *
+     * @param name
+     * @param from
+     * @param to
+     * @return
+     */
+    @PostMapping("findByNameWithPage")
+    public JSONResult findById (String name,int from, int to) {
+        if(to<=from){
+            return JSONResult.errorException("输入记录位置错误");
+        }
+        List<Car> cars  = carService.findByNameWithPage(name,from,to-from);
+        return JSONResult.ok(cars);
     }
 }
